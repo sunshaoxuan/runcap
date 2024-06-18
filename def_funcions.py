@@ -442,9 +442,32 @@ def capture_when_stable(shotRegion=None, wait_time=2, stability_threshold=5, max
             break
         prev_image = current_image
         time.sleep(0.2) 
+        
+def force_screen_shot(win, dir_path, file_name, suffix, adj, is_full_screen=False):
+    if not is_full_screen:
+        adjnum = 2
+        if adj:
+            adjnum = 7
+        rect = win.rectangle()
+        x, y, width, height = rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top
+        shotRegion = (x + adjnum, y + 1, width - 2 * adjnum, height - 1 - adjnum)
+        print(f"Shot region: {shotRegion}")
+        current_image = pyautogui.screenshot(region=shotRegion)
+    else:
+        current_image = pyautogui.screenshot()
+
+    if current_image is None:
+        print("Failed to capture screenshot.")
+        return None
+    
+    screenshot_path = os.path.join(dir_path, f"{file_name}{suffix}.png")
+    ensure_dir(screenshot_path)
+    
+    current_image.save(screenshot_path)
+    print("Saved picture at: " + screenshot_path)
+    return screenshot_path
 
 def screen_shot(win, dir_path, file_name, suffix, adj, is_full_screen=False):
-    Rectangle = namedtuple('Rectangle', 'left top right bottom')
     if not is_full_screen:
         adjnum = 2
         if adj:
